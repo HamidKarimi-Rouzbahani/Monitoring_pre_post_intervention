@@ -1,5 +1,5 @@
 function TrainVigPrePost(Subj)
-Screen('Preference', 'SkipSyncTests',1);
+% Screen('Preference', 'SkipSyncTests',1);
 % developed by Hamid Karimi-Rouzbahani on 23/March/2022
 % modified by Hamid Karimi-Rouzbahani on 14/April/2022: changed rng('default') to rng(1) 
 commandwindow;
@@ -60,7 +60,7 @@ Num_moving_dots=2; % do not need to change this parameter
 
 
 Num_of_conditions=length(percentage_target_cond);
-Sets_of_subjects=200; % how many groups of subjects do you want to repeat all the conditions for?
+Sets_of_subjects=100; % how many groups of subjects do you want to repeat all the conditions for?
 % Generating counter-balanced blocks in terms of frequency conditions and cued colours
 conds_perm=repmat(perms([1:Num_of_conditions]),[Sets_of_subjects 1]);
 Block_condition=nan(size(conds_perm,1),Num_of_conditions*Blocks_per_condition);
@@ -208,6 +208,12 @@ try
         % information for the trial)
     end
     
+    if Subj<=Sets_of_subjects
+        Subj_current=Subj;
+    else
+        Subj_current=Subj-Sets_of_subjects;
+    end
+    
     for Block_Num=1:Num_of_conditions*Blocks_per_condition
         percentage_target=percentage_target_cond(1,Block_condition(24,Block_Num));
         Condition_string=['Freq_',sprintf('%.2f', percentage_target)];
@@ -243,7 +249,7 @@ try
         end
         
         Screen('TextSize',wpoint, 30);
-        if Cued_color_in_block(Subj,Block_Num)==1
+        if Cued_color_in_block(Subj_current,Block_Num)==1
             target_color='RED';
             block_target_color=1;
             message = ['\n\n\n\n\n ---  Respond to ',target_color, ' dots  ---\n\n\n\n\n Press the button to start !!! \n\n\n\n\n'];
@@ -905,8 +911,13 @@ try
         if Eye_tracking
             Eyelink('Message', 'End_of_Rest_Time');
         end
-        save(['Subj_',num2str(Subj),'_Blk_',num2str(Block_Num),'_',Condition_string,...
-            '_train_PrePost.mat'],'manually_deflected_top','top_events','top_events2','top_targets','top_targets2',...
+        if Subj<=Sets_of_subjects
+            Subj_str='Pre';
+        else
+            Subj_str='Post';
+        end
+        save(['Subj_',num2str(Subj_current),'_Blk_',num2str(Block_Num),'_',Condition_string,...
+            '_train_',Subj_str,'.mat'],'manually_deflected_top','top_events','top_events2','top_targets','top_targets2',...
             'automatically_deflected_top','manually_deflected_top2','automatically_deflected_top2','speedx1','speedx2',...
             'moving_dots_radius','obstacle_radius','boundary_radius','distance_traj1','beeped_top','beeped_top2',...
             'distance_traj2','hitting_obstacle_distance','hitting_border_distance',...
@@ -921,8 +932,8 @@ try
             Screen('FinalizeMovie', movie);
         end
         if SaveAudio==1
-            audiowrite(['Subj_',num2str(Subj),'_Blk_',num2str(Block_Num),'_',Condition_string,...
-                '_train_Levels.wav'], getaudiodata(Voice), Fs)
+            audiowrite(['Subj_',num2str(Subj_current),'_Blk_',num2str(Block_Num),'_',Condition_string,...
+                '_train_',Subj_str,'.wav'], getaudiodata(Voice), Fs)
         end
         
         
